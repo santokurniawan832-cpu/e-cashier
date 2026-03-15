@@ -113,7 +113,7 @@
                     </div> --}}
                 </template>
             </template>
-            <template x-if="listProduct.length == 0">
+            <template x-if="hasFetchedProduct && listProduct.length == 0">
                 <div class="p-2 mb-2 rounded-lg text-sm text-white rounded-base bg-blue-300 w-full" role="alert">
                     <span x-text="message.alert" class="font-medium"></span>
                 </div>

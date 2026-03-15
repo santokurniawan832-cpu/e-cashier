@@ -19,24 +19,30 @@ function stateListProduct() {
         // menampung kondisi proses pengiriman
         isProcess: false,
 
+        hasFetchedProduct: false,
+
         init() {
             this.getListProduct()
         },
         async getListProduct() {
             this.isProcess = true
+            this.hasFetchedProduct = false
             try {
                 let result = await axios.get('list-product')
                 this.listProduct = result.data.response
 
-                if(this.listProduct == 0){
+                if(this.listProduct.length == 0){
                     this.message.alert = 'data product belum tersedia.'
                 }
+
+                
                 // mengosongkan list product yang ada cart
                 this.listProductOnCart = []
             } catch (error) {
                 console.log('error', error)
             }
             this.isProcess = false
+            this.hasFetchedProduct = true
         },
         // membuat fungsi event click untuk tambah data produk kedalam keranjang
         addProductToCart(product) {
