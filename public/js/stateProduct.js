@@ -12,7 +12,7 @@ function stateProduct() {
         // variable menampung data original seluruh object product beserta data stocks
         originalProductStock:{name: '', stock: {}, price: '', size: '', description: ''},
 
-        // variable menampung data baru ketika ada diedit di seluruh field product 
+        // variable menampung data baru ketika ada diedit di seluruh field product
         editProductStock: {name: '', stock: {}, price: '', size: '', description: ''},
 
         // variable menampung object error
@@ -71,16 +71,16 @@ function stateProduct() {
         },
         async editStock(productId) {
             try {
-                // mengambil data product melalui url 
+                // mengambil data product melalui url
                 let result = await axios.get(`product/${productId}/stock`)
-                
+
                 // mengambil data dari hasil BE
                 let response = result.data.response
 
-                // cloning / mengcopy data 
+                // cloning / mengcopy data
                 let clone = structuredClone(response)
 
-                // casting / konversi tipe data dari string ke number 
+                // casting / konversi tipe data dari string ke number
                 clone.stock.quantity = Number(clone.stock.quantity)
 
                 // menangkap inputan diblade
@@ -110,14 +110,14 @@ function stateProduct() {
 
                 // mengirim data ke BE melalui uri
                 let result = await axios.patch(`product/${productId}/restock`, sendUpdateProductStock);
-                
+
                 // mengembalikan nilai awal is proses
                 this.isProcess = false
-                
+
                 // mengambil nilai data message yang dikiirm dari BE
                 this.messages.success = result.data.message
 
-                // setting waktu untuk menghapus data message 
+                // setting waktu untuk menghapus data message
                 setTimeout(()=> {this.messages.success = ''}, 5000)
 
                 // mengembalikan ke komponent table
@@ -141,8 +141,9 @@ function stateProduct() {
 
                 // memasukkan kiriman data response dari BE
                 this.listProduct = result.data.response
+                console.log('data dari BE',this.listProduct)
             } catch (error) {
-                console.log(error)
+                console.log('error dari BE',error.response)
             }
         },
         async btnSubmit() {
@@ -155,24 +156,27 @@ function stateProduct() {
 
                 // mengumpulkan seluruh data product kedalam objek
                 let newDataProduct = {
-                    name: this.product.name, 
-                    quantity: this.product.quantity, 
-                    price: this.product.price, 
-                    size: this.product.size, 
-                    description: this.product.description, 
+                    name: this.product.name,
+                    quantity: this.product.quantity,
+                    price: this.product.price,
+                    size: this.product.size,
+                    description: this.product.description,
                 }
                 // mengirim data ke back end dengan jalur store-product dan membawa data product baru
                 let result = await axios.post('store-product', newDataProduct)
-                
+
                 // mengambil response hasil pengiriman dari BE
                 this.messages.success = result.data.message
 
                 // setting waktu sebanyak 10 detik  agar dapat menghapus messages.success
                 setTimeout(()=> {this.messages.success = ''}, 4000)
 
+                // reload data 
+                this.getListProduct()
+
                 // mengembalikan nilai isProcess dengan nilai false, karna sudah selesai proses validasi
                 this.isProcess = false
-                
+
                 // kembali ke tampilan table
                 this.isCurrentView = 'table'
             } catch (error) {
@@ -198,10 +202,10 @@ function stateProduct() {
             try {
                 // membuat confirmation
                 let confirmaton = confirm('yakin menghapus?')
-                
-                // mengecek kondisi bila tidak ada confirmation 
-                if(!confirmaton) return 
-                
+
+                // mengecek kondisi bila tidak ada confirmation
+                if(!confirmaton) return
+
                 // mengirim productId melalui uri
                 let result = await axios.delete(`product/${productId}`)
 

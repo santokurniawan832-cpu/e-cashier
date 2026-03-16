@@ -28,16 +28,18 @@
                     <th class="px-6 py-4" x-text="index + 1"></th>
                     <td class="px-6 py-4" x-text="product.name"></td>
                     <td class="px-6 py-4">
-                        <span   x-text="product.stock.quantity" x-on:click="editStock(product.id)" 
-                            class="hover:underline hover:cursor-pointer hover:text-blue-400 hover:font-semibold" 
-                        ></span>
+                        <template x-if="product.stock">
+                            <span x-text="product.stock == null ? 0 : product.stock.quantity " x-on:click="editStock(product.id)"
+                                class="hover:underline hover:cursor-pointer hover:text-blue-400 hover:font-semibold"
+                            ></span>
+                        </template>
                     </td>
                     <td class="px-6 py-4" x-text="product.size"></td>
                     <td class="px-6 py-4" x-text="product.price"></td>
                     <td class="px-6 py-4 text-right inline-flex gap-2">
 
-                        <span  x-on:click="btnDelete(product.id)" 
-                            class="hover:underline text-red-400 hover:cursor-pointer hover:text-red-600 hover:font-semibold" 
+                        <span  x-on:click="btnDelete(product.id)"
+                            class="hover:underline text-red-400 hover:cursor-pointer hover:text-red-600 hover:font-semibold"
                         >delete</span>
                     </td>
                 </tr>

@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Stock;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{Validator, DB};
 
 class AdminController extends Controller
 {
@@ -28,25 +28,25 @@ class AdminController extends Controller
                 'quantity.required' => 'Jumlah produk wajib dipilih..',
                 'description.required' => 'Keterangan Produk wajib diisi..',
             ]);
-    
+
             // mengembalikan errors response berbentuk json
             if ($validator->fails()) {
                 return response()->json([
                     'errors'    => $validator->errors()
                 ], 442);
             }
-    
+
             // menampung seluruh data product baru kedalam array
             $validated = $validator->validated();
             // membuat data product baru
             $product = Product::create($validated);
-    
+
             // membuat data stocks
-            $product->stocks()->create(['quantity'=> $validated['quantity']]);
+            $product->stock()->create(['quantity'=> $validated['quantity']]);
 
             // mengembalikan response berhasil berbentuk json ke FE
             return response()->json([
-                'message'   => 'Produk berhasil disimpan', 
+                'message'   => 'Produk berhasil disimpan',
                 'data'      => ''
             ], 201);
 
@@ -64,13 +64,7 @@ class AdminController extends Controller
         // mengambil semua request dari FE
         $dataRequest = $request->only(['productId', 'quantity']);
 
-        // Mengambil data stock berdasarkan product_id
-        $stock = Stock::findOrFail($dataRequest['productId']);
-
-        // menimpa request input quantity kedalam Model Stock
-        $stock->update([
-            'quantity'  => $dataRequest['quantity']
-        ]);
+        DB::table('stocks')->where('product_id', $dataRequest['productId'])->update(['quantity' => $dataRequest['quantity']]);
 
         // mengembalikan response berbentuk json
         return response()->json([
@@ -82,7 +76,7 @@ class AdminController extends Controller
                 'message'   => $error->getMessage()
             ], 500);
         }
-        
+
     }
 
     // fungsi untuk menghapus data product berdasarkan productId
@@ -93,7 +87,7 @@ class AdminController extends Controller
 
         // menghapus data stock product
         $product->stock->delete();
-        
+
         // menghapus data product
         $product->delete();
 
