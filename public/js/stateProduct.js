@@ -68,6 +68,8 @@ function stateProduct() {
         },
         createProduct() {
             this.isCurrentView = 'create'
+            this.resetErrors()
+            this.resetField()
         },
         async editStock(productId) {
             try {
@@ -120,6 +122,9 @@ function stateProduct() {
                 // setting waktu untuk menghapus data message
                 setTimeout(()=> {this.messages.success = ''}, 5000)
 
+                // reload data product
+                this.getListProduct()
+                
                 // mengembalikan ke komponent table
                 this.isCurrentView = 'table'
             } catch (error) {
@@ -171,7 +176,7 @@ function stateProduct() {
                 // setting waktu sebanyak 10 detik  agar dapat menghapus messages.success
                 setTimeout(()=> {this.messages.success = ''}, 4000)
 
-                // reload data 
+                // reload data
                 this.getListProduct()
 
                 // mengembalikan nilai isProcess dengan nilai false, karna sudah selesai proses validasi

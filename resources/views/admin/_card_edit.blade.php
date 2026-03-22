@@ -37,10 +37,8 @@
         </div>
         <div class="col-span-2 sm:col-span-1">
             <label for="category" class="block mb-2.5 text-sm font-medium text-heading">Ukuran</label>
-            <select  id="category"  x-model="editProductStock.size" class="cursor-not-allowed rounded-lg block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand px-3 py-2.5 shadow-xs placeholder:text-body">
-                <template x-for="index in 10" :key="index">
-                    <option :value="editProductStock.size" x-text="editProductStock.size"></option>
-                </template>
+            <select  id="category" readonly  x-model="editProductStock.size" class="cursor-not-allowed rounded-lg block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand px-3 py-2.5 shadow-xs placeholder:text-body">
+                <option :value="editProductStock.size" x-text="editProductStock.size"></option>
             </select>
             <x-input-error :messages="$errors->get('size')" class="mt-2" />
         </div>

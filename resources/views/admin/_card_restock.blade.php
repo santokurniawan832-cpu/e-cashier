@@ -58,8 +58,8 @@
                             </div>
                             <div class="col-span-2 sm:col-span-1">
                                 <label for="category" class="block mb-2.5 text-sm font-medium text-heading">Ukuran</label>
-                                <select value="{{ $product->size }}" id="category"  name="size" class="cursor-not-allowed rounded-lg block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand px-3 py-2.5 shadow-xs placeholder:text-body">
-                                   <option selected="{{$product->size}}">{{$product->size}}</option>
+                                <select value="{{ $product->size }}" id="category" readonly name="size" class="cursor-not-allowed rounded-lg block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand px-3 py-2.5 shadow-xs placeholder:text-body">
+                                   <option disabled selected="{{$product->size}}">{{$product->size}}</option>
                                 </select>
                                 <x-input-error :messages="$errors->get('size')" class="mt-2" />
                             </div>
