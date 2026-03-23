@@ -32,14 +32,11 @@ Route::view('profile', 'profile')
 Route::middleware(['auth', 'verified'])->group(function(){
     // ROUTE FOR ADMIN
     Route::get('list-product', [AdminController::class, 'getListProduct'])->name('list-product');
-    Route::post('store-product',[AdminController::class, 'store'])->name('store-product');
-    Route::get('product/{productId}/stock', [AdminController::class, 'getProductBy'])->name('product.stock');
-    Route::patch('product/{product}/restock', [AdminController::class, 'updateStock'])->name('product.update.restock');
-    Route::delete('product/{productId}', [AdminController::class, 'deleteProduct'])->name('product.delete');
+    Route::post('store-product', [AdminController::class, 'store'])->name('store-product');
+    Route::delete('product/{productId}/delete', [AdminController::class, 'deleteProduct'])->name('product.delete');
+    Route::get('product/{productId}/edit', [AdminController::class, 'getProductBy'])->name('product.edit');
 
     // ROUTE FOR CASHIER
-    ROUTE::get('list-product', [AdminController::class, 'getListProduct'])->name('list-product');
-    Route::post('store-order', [CashierController::class, 'storeOrderProduct'])->name('store-order');
 });
 
 require __DIR__.'/auth.php';

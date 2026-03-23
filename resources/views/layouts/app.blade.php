@@ -15,7 +15,6 @@
         <link rel="stylesheet" href="{{asset('/css/alpine.css')}}">
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @stack('scripts')
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">

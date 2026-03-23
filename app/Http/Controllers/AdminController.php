@@ -11,130 +11,120 @@ use Illuminate\Support\Facades\{Validator, DB};
 
 class AdminController extends Controller
 {
-    public function store(Request $request) {
-        try {
-            // melakukan validasi seluruh request yang dikirim dari FE
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|unique:products|max:255',
-                'size' => 'required',
-                'price' => 'required',
-                'quantity' => 'required',
-                'description'   => 'required'
-            ], [
-                'name.required' => 'Nama wajib diisi..',
-                'name.unique' => 'Nama Produk sudah dipakai..',
-                'size.required' => 'Ukuran produk wajib dipilih..',
-                'price.required' => 'Harga produk wajib diisi..',
-                'quantity.required' => 'Jumlah produk wajib dipilih..',
-                'description.required' => 'Keterangan Produk wajib diisi..',
-            ]);
-
-            // mengembalikan errors response berbentuk json
-            if ($validator->fails()) {
-                return response()->json([
-                    'errors'    => $validator->errors()
-                ], 442);
-            }
-
-            // menampung seluruh data product baru kedalam array
-            $validated = $validator->validated();
-            // membuat data product baru
-            $product = Product::create($validated);
-
-            // membuat data stocks
-            $product->stock()->create(['quantity'=> $validated['quantity']]);
-
-            // mengembalikan response berhasil berbentuk json ke FE
-            return response()->json([
-                'message'   => 'Produk berhasil disimpan',
-                'data'      => ''
-            ], 201);
-
-            } catch (\Exception $error) {
-            // mengembalikan response error berbentuk json ke FE
-            return response()->json([
-                'error' => $error->getMessage()
-            ], 500);
-        }
-    }
-
-    // fungsi untuk melakukan update data stok product
-    public function updateStock(Request $request) {
-        try {
-        // mengambil semua request dari FE
-        $dataRequest = $request->only(['productId', 'quantity']);
-
-        DB::table('stocks')->where('product_id', $dataRequest['productId'])->update(['quantity' => $dataRequest['quantity']]);
-
-        // mengembalikan response berbentuk json
-        return response()->json([
-            'message'   => 'restock produk berhasil.',
-        ], 200);
-
-        } catch (\Exception $error) {
-            return response()->json([
-                'message'   => $error->getMessage()
-            ], 500);
-        }
-
-    }
-
-    // fungsi untuk menghapus data product berdasarkan productId
-    public function deleteProduct($productId) {
-        try {
-        // mengambil data product berdasarkan productId
-        $product = Product::findOrFail($productId);
-
-        // menghapus data stock product
-        $product->stock->delete();
-
-        // menghapus data product
-        $product->delete();
-
-        // mengembalikan response berbentuk json keFE
-        return response()->json([
-            'message'   => 'delete product berhasii dihapus'
-        ], 200);
-
-        } catch (\Exception $error) {
-             return response()->json([
-            'message'   => $error->getMessage()
-        ], 500);
-        }
-    }
-
-    //fungsi untuk mengambil seluruh data list product beserta dengan stock
+    // membuat action untuk mengambil data list product
     public function getListProduct() {
         try {
-            // mengambil seluruh data product dengan relasi stocks
+            // mengambil seluruh product dengan stock melalui class Product
             $listProduct = Product::with('stock')->get();
-            // mengembalikan data response berbentuk json
+            // mengembalikan data respose yang diharapkan
             return response()->json([
-                'message'   => 'get list product succuessfully',
-                'response'      => $listProduct
-            ], 200);
+                'message'  => 'get list product succesfully',
+                'response'  => $listProduct
+            ]);
 
         } catch (\Exception $error) {
+            // mengembalikan response error
             return response()->json([
-                'message'  => $error->getMessage()
-            ],500);
+                'error' => $error->getMessage()
+            ]);
         }
     }
 
-    public function getProductBy($productId) {
+    public function store(Request $request) {
         try {
-            // mengambil data product berdasarkan id
-            $product = Product::with('stock')->findOrFail($productId);
+            // melakukan validasi request inputan
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|unique:products|max:255',
+                'quantity'=> 'required',
+                'size' => 'required',
+                'price'=> 'required',
+                'description'=> 'required'
+            ],[
+                'name.required' => 'nama wajib diisi..',
+                'quantity.required' => 'jumlah wajib diisi..',
+                'size.required' => 'ukuran wajib dipilih..',
+                'price.required' => 'harga wajib diisi..',
+                'description.required' => 'keterangan wajib diisi..',
+            ]);
 
-            // mengembalikan response berbentuk json ke FE
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors'  => $validator->errors()
+                ], 422);
+            }
+
+            // membuat request pengiriman menjadi array
+            $validated = $validator->validated();
+
+
+            // membuat data product baru
+            $product = Product::create([
+                'name'  => $validated['name'],
+                'size'  => $validated['size'],
+                'price'  => $validated['price'],
+                'description'  => $validated['description']
+            ]);
+
+            // mengambil id terakhir dibuat
+            $productId = DB::getPdo()->lastInsertId();
+
+            // membuat data stocks
+            DB::insert('INSERT INTO stocks (product_id, quantity, created_at, updated_at) values (?, ?, ?, ?)', [
+                $productId, $validated['quantity'], now(), now()
+            ]);
+
             return response()->json([
-                'message'   => 'get data product successfully',
-                'response'      => $product
+                'message'  => 'produk berhasil dibuat',
+            ], 201);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message'  => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteProduct($productId) {
+        try {
+            // menemukan data product melalui productId
+            $product = Product::findOrFail($productId);
+
+            // menghapus data stock melalui objek product
+            if($product->stock) {
+                $product->stock->delete();
+            }
+
+            // menghapus data product
+            $product->delete();
+
+            // mengembalikan pesan response ke FE
+            return response()->json([
+                'message'  => 'produk dan stok berhasil dihapus..'
             ], 200);
 
         } catch (\Exception $error) {
             return response()->json([
                 'message'   => $error->getMessage()
+            ], 500);
+        }
+    }
+
+    // fungsi untuk mengambil data product berdasarkan productId
+    public function getProductBy($productId) {
+        try {
+            // mengambil data product dengan relasi stock melalui class model Product
+            $product = Product::with('stock')->findOrFail($productId);
+
+            // mengembalikan response data product berbentuk json ke FE
+            return response()->json([
+                'message'   => 'get product successfully',
+                'response'  => $product
+            ], 200);
+
+        } catch (\Throwable $th) {
+            // mengembalikan response error berbentuk json ke FE
+            return response()->json([
+                'message'   => $th->getMessage()
             ], 500);
         }
     }
